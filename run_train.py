@@ -48,8 +48,8 @@ NUM_EPOCHS = 30
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print("Using", torch.cuda.device_count(), "GPUs!")
 CAT_EMBEDDING_DIM = 8
-TEXT_EMBEDDING_DIM = 256
-HIDDEN_DIM = 128
+TEXT_EMBEDDING_DIM = 512
+HIDDEN_DIM = 512
 MAX_HISTORY_LEN = 10
 HISTORY_PAD = "[PAD]"
 HISTORY_TIME_PAD = 0

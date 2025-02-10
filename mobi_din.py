@@ -38,65 +38,6 @@ class TextEmbeddingModule(nn.Module):
     def forward(self, berd_embed):
         return self.projection(berd_embed)  # (batch_size, embedding_dim)
 
-
-class MultiHeadDINAttention(nn.Module):
-    """Multi-head attention with time-aware decay for variable-length history."""
-
-    def __init__(self, input_dim, num_heads=4, time_decay_factor=0.01):
-        super().__init__()
-        self.num_heads = num_heads
-        self.time_decay_factor = (
-            time_decay_factor  # Controls how much past interactions decay
-        )
-        self.query_layer = nn.Linear(input_dim, input_dim)
-        self.key_layer = nn.Linear(input_dim, input_dim)
-        self.value_layer = nn.Linear(input_dim, input_dim)
-        self.scale_factor = (input_dim // num_heads) ** 0.5
-
-    def forward(
-        self, past_interactions, candidate_embedding, past_mask, past_timestamps
-    ):
-        """
-        past_interactions: (batch_size, seq_len, input_dim)
-        candidate_embedding: (batch_size, input_dim)
-        past_mask: (batch_size, seq_len) - 1 for valid, 0 for padding
-        past_timestamps: (batch_size, seq_len) - Time decay factors
-        """
-        queries = self.query_layer(candidate_embedding).unsqueeze(
-            1
-        )  # (batch_size, 1, input_dim)
-        keys = self.key_layer(past_interactions)  # (batch_size, seq_len, input_dim)
-        values = self.value_layer(past_interactions)  # (batch_size, seq_len, input_dim)
-
-        # Compute raw attention scores
-        attention_scores = (
-            torch.bmm(queries, keys.transpose(1, 2)) / self.scale_factor
-        )  # (batch_size, 1, seq_len)
-
-        # Apply padding mask (set masked positions to -inf before softmax)
-        attention_scores = attention_scores.masked_fill(
-            past_mask.unsqueeze(1) == 0, float("-inf")
-        )
-
-        # Apply time-aware weighting (higher weight for more recent interactions)
-        if past_timestamps is not None:
-            time_decay = torch.exp(
-                -self.time_decay_factor * past_timestamps
-            )  # Exponential decay
-            attention_scores = attention_scores * time_decay.unsqueeze(1)
-
-        # Compute attention weights
-        attention_weights = F.softmax(
-            attention_scores, dim=-1
-        )  # (batch_size, 1, seq_len)
-
-        # Compute weighted sum of values
-        attended_features = torch.bmm(attention_weights, values).squeeze(
-            1
-        )  # (batch_size, input_dim)
-        return attended_features
-
-
 class EnhancedMultiHeadDINAttention(nn.Module):
     """Multi-head attention with enriched query-history interactions and time-aware decay."""
 
@@ -169,9 +110,7 @@ class EnhancedMultiHeadDINAttention(nn.Module):
             attention_scores = attention_scores * time_decay.unsqueeze(1)
 
         # Compute attention weights
-        attention_weights = F.softmax(
-            attention_scores, dim=-1
-        )  # (batch_size, seq_len, seq_len)
+        attention_weights = F.dropout(F.softmax(attention_scores, dim=-1), p=0.1) # (batch_size, seq_len, seq_len)
 
         # Compute weighted sum of values
         attended_features = torch.bmm(
@@ -179,6 +118,7 @@ class EnhancedMultiHeadDINAttention(nn.Module):
         )  # (batch_size, seq_len, input_dim)
         attended_features = attended_features.sum(dim=1)
         # attended_features = attended_features.mean(dim=1)  # Average across all queries (batch_size, input_dim)
+        attended_features = attended_features + candidate_embedding  # Residual connection
 
         # Concatenate attended features with interaction features
         enriched_representation = torch.cat(
@@ -236,19 +176,44 @@ class DINForDurationPrediction(nn.Module):
             + sum([dim[1] for dim in cat_embedding_dims])
             + text_embedding_dim * 3
         )  # Concatenated features from all sources
+
+        # self.fc = nn.Sequential(
+        #     nn.Linear(fc_input_dim, hidden_dim),
+        #     nn.BatchNorm1d(
+        #         hidden_dim, affine=True, track_running_stats=True
+        #     ),  # Keep it flexible
+        #     nn.ReLU(),
+        #     nn.Dropout(dropout_rate),
+        #     nn.Linear(hidden_dim, hidden_dim),
+        #     nn.BatchNorm1d(hidden_dim, affine=True, track_running_stats=True),
+        #     nn.ReLU(),
+        #     nn.Dropout(dropout_rate),
+        #     nn.Linear(hidden_dim, hidden_dim // 2),
+        #     nn.BatchNorm1d(hidden_dim // 2, affine=True, track_running_stats=True),
+        #     nn.ReLU(),
+        #     nn.Dropout(dropout_rate),
+        #     nn.Linear(hidden_dim // 2, 1),
+        # )
+
         self.fc = nn.Sequential(
             nn.Linear(fc_input_dim, hidden_dim),
-            nn.BatchNorm1d(
-                hidden_dim, affine=True, track_running_stats=True
-            ),  # Keep it flexible
+            nn.LayerNorm(hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(dropout_rate),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
             nn.ReLU(),
             nn.Dropout(dropout_rate),
             nn.Linear(hidden_dim, hidden_dim // 2),
-            nn.BatchNorm1d(hidden_dim // 2, affine=True, track_running_stats=True),
+            nn.LayerNorm(hidden_dim // 2),
             nn.ReLU(),
             nn.Dropout(dropout_rate),
             nn.Linear(hidden_dim // 2, 1),
         )
+        for layer in self.fc:
+            if isinstance(layer, nn.Linear):
+                nn.init.kaiming_normal_(layer.weight, mode='fan_in', nonlinearity='relu')
+
 
     def forward(
         self,
