@@ -3,8 +3,7 @@ import pandas as pd
 import os
 import torch
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
-import torch.nn as nn
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 from mobi_din import DINForDurationPrediction, get_bert_embedding
 from torch.optim import Adam
 from torch.utils.data import DataLoader, Dataset
@@ -45,9 +44,12 @@ history_cols = ["history_elems"]
 
 BATCH_SIZE = 32
 NUM_EPOCHS = 30
+LR = 0.001
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print("Using", torch.cuda.device_count(), "GPUs!")
-CAT_EMBEDDING_DIM = 8
+CAT_EMBEDDING_DIM_L = 256
+CAT_EMBEDDING_DIM_M = 128
+CAT_EMBEDDING_DIM_S = 16
 TEXT_EMBEDDING_DIM = 512
 HIDDEN_DIM = 512
 MAX_HISTORY_LEN = 10
@@ -60,7 +62,7 @@ bert_model = AutoModel.from_pretrained("bert-base-uncased")
 bert_model.to(DEVICE)
 
 
-def convert_df_to_trainable_set(raw_df, target_type="raw"):
+def convert_df_to_trainable_set(raw_df):
     candidate_embeds = get_bert_embedding(
         bert_model, bert_tokenizer, raw_df["candidate_text"].tolist()
     )
@@ -79,26 +81,27 @@ def convert_df_to_trainable_set(raw_df, target_type="raw"):
         ] * (MAX_HISTORY_LEN - len(history_elems))
         padded_past_timestamps = padded_past_timestamps[:MAX_HISTORY_LEN]
         item["past_timestamps"] = padded_past_timestamps
-        if target_type == "raw":
-            item["label"] = item["DAYS"]
-        elif target_type == "log":
-            item["label"] = np.log1p(item["DAYS"])
-        elif target_type == "scale":
-            item["label"] = item["duration_scaled"]
         final_df.append(item)
     return final_df, candidate_embeds
 
 
 class CustomDataset(Dataset):
-    def __init__(self, df, candidate_embeds):
+    def __init__(self, df, candidate_embeds, target_type="raw"):
         self.df = df
         self.candidate_embeds = candidate_embeds
+        self.target_type = target_type
 
     def __len__(self):
         return len(self.df)
 
     def __getitem__(self, idx):
         current_sample = self.df[idx]
+        if self.target_type == "raw":
+            current_sample["label"] = current_sample["cap_days"]
+        elif self.target_type == "log":
+            current_sample["label"] = np.log1p(current_sample["cap_days"])
+        elif self.target_type == "scale":
+            current_sample["label"] = current_sample["duration_scaled"]
         return {
             "num_features": torch.tensor(
                 [current_sample[key] for key in numerical_cols]
@@ -111,7 +114,8 @@ class CustomDataset(Dataset):
             "past_timestamps": torch.tensor(current_sample["past_timestamps"]).float(),
             "candidate_embed": self.candidate_embeds[idx],
             "targets": torch.tensor(current_sample["label"], dtype=torch.float32),
-            "DAYS": current_sample["DAYS"]
+            "cap_days": current_sample["cap_days"],
+            "DAYS": current_sample["DAYS"],
         }
 
 
@@ -141,11 +145,29 @@ def calc_metrics(preds, gt, verbose=False):
     return avg_approval_days, overpaid_ratio, avg_overpaid_days
 
 
+def asymmetric_mse_loss(preds, gt, overpay_penalty=2.0):
+    error = preds - gt
+    loss = torch.where(error > 0, overpay_penalty * (error**2), error**2)
+    return loss.mean()
+
+
+def quantile_loss(y_pred, y_true, quantile=0.15):
+    error = y_true - y_pred
+    return torch.max((quantile - 1) * error, quantile * error).mean()
+
+
+def combine_loss(y_pred, y_true):
+    loss_asy = asymmetric_mse_loss(y_pred, y_true)
+    loss_qant = quantile_loss(y_pred, y_true, quantile=0.15)
+    # loss_mse = nn.SmoothL1Loss()(y_pred, y_true) # nn.MSELoss()
+    return loss_asy * 0.0 + loss_qant * 1
+
+
 # Define the training loop
 def train_model(model, train_loader, val_loader, epochs, lr, device):
     model = model.to(device)
     optimizer = Adam(model.parameters(), lr=lr)
-    loss_fn = nn.MSELoss()  # Mean Squared Error for regression
+    loss_fn = combine_loss
 
     for epoch in range(epochs):
         model.train()
@@ -210,8 +232,8 @@ def train_model(model, train_loader, val_loader, epochs, lr, device):
 
                 loss = loss_fn(outputs, targets)
                 val_loss += loss.item()
-            preds += outputs.detach().cpu().tolist()
-            gt += batch["DAYS"].cpu().tolist()
+                preds += outputs.detach().cpu().tolist()
+                gt += batch["cap_days"].cpu().tolist()
         avg_val_loss = val_loss / len(val_loader)
         print(f"Validation Loss: {avg_val_loss:.4f}")
         calc_metrics(np.array(preds), np.array(gt), verbose=True)
@@ -219,15 +241,25 @@ def train_model(model, train_loader, val_loader, epochs, lr, device):
 
 # Example usage
 if __name__ == "__main__":
+    CAP_VALUE = 150
     intem_data_save_path = "/app/models/jiaqi/std_din_results"
     # Simulate some random data for training and validation
     df = pd.read_pickle("data_for_experiment.pkl")
+    df["cap_days"] = df["DAYS"].apply(lambda x: min(x, CAP_VALUE))
     cat_max_values = df[categorical_cols + boolean_cols].max().tolist()
-    CAT_EMBEDDING_DIMS = [(x + 1, CAT_EMBEDDING_DIM) for x in cat_max_values]
+
+    CAT_EMBEDDING_DIMS = []
+    for x in cat_max_values:
+        if x < 10:
+            CAT_EMBEDDING_DIMS.append((x + 1, CAT_EMBEDDING_DIM_S))
+        elif x < 100:
+            CAT_EMBEDDING_DIMS.append((x + 1, CAT_EMBEDDING_DIM_M))
+        else:
+            CAT_EMBEDDING_DIMS.append((x + 1, CAT_EMBEDDING_DIM_L))
     NUM_FEATURES_DIM = len(numerical_cols)
 
     scaler = MinMaxScaler()
-    df["duration_scaled"] = scaler.fit_transform(df[["DAYS"]])
+    df["duration_scaled"] = scaler.fit_transform(df[["cap_days"]])
 
     if os.path.exists(f"{intem_data_save_path}/train.pth"):
         print("============ Loading the saved data ============")
@@ -239,10 +271,10 @@ if __name__ == "__main__":
         )
     else:
         final_df_train, candidate_embeds_train = convert_df_to_trainable_set(
-            df[df["data_type"] == "train"], target_type=TARGET_TYPE
+            df[df["data_type"] == "train"]
         )
         final_df_test, candidate_embeds_test = convert_df_to_trainable_set(
-            df[df["data_type"] == "test"], target_type=TARGET_TYPE
+            df[df["data_type"] == "test"]
         )
         torch.save(
             (final_df_train, candidate_embeds_train),
@@ -252,8 +284,12 @@ if __name__ == "__main__":
             (final_df_test, candidate_embeds_test), f"{intem_data_save_path}/test.pth"
         )
 
-    train_dataset = CustomDataset(final_df_train, candidate_embeds_train)
-    val_dataset = CustomDataset(final_df_test, candidate_embeds_test)
+    train_dataset = CustomDataset(
+        final_df_train, candidate_embeds_train, target_type=TARGET_TYPE
+    )
+    val_dataset = CustomDataset(
+        final_df_test, candidate_embeds_test, target_type=TARGET_TYPE
+    )
 
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
@@ -271,5 +307,5 @@ if __name__ == "__main__":
 
     # Train the model
     train_model(
-        din_model, train_loader, val_loader, epochs=NUM_EPOCHS, lr=0.001, device=DEVICE
+        din_model, train_loader, val_loader, epochs=NUM_EPOCHS, lr=LR, device=DEVICE
     )
