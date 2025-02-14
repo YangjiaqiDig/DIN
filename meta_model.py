@@ -111,21 +111,17 @@ class SimpleModel(nn.Module):
             nn.Linear(num_features_dim, hidden_dims),
             nn.BatchNorm1d(hidden_dims),
             nn.Tanh(),
-            nn.Linear(
-                hidden_dims, hidden_dims
-            ),
+            nn.Linear(hidden_dims, hidden_dims),
             nn.BatchNorm1d(hidden_dims),
             nn.Tanh(),
-            nn.Linear(
-                hidden_dims, hidden_dims // 2
-            ),
+            nn.Linear(hidden_dims, hidden_dims // 2),
             nn.BatchNorm1d(hidden_dims // 2),
             nn.Tanh(),
             nn.Linear(hidden_dims // 2, self.num_feature_embed_len),
             nn.BatchNorm1d(self.num_feature_embed_len),
             nn.Tanh(),
         )
-        
+
         # Feature Cross Network for interaction learning
         self.feature_cross = FeatureCrossNetwork(num_features_dim)
 
@@ -145,6 +141,64 @@ class SimpleModel(nn.Module):
         cat_embeds = torch.cat(cat_embeds, dim=-1)  # (batch_size, total_cat_dim)
 
         return torch.cat([num_embeds, num_crossed, cat_embeds], dim=-1)
+
+
+class ResidualBlock(nn.Module):
+    def __init__(self, input_dim):
+        super().__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(input_dim, input_dim), nn.BatchNorm1d(input_dim), nn.Tanh()
+        )
+
+    def forward(self, x):
+        return x + self.fc(x)  # Skip connection
+
+
+class SimpleModelUpgrade(nn.Module):
+    def __init__(
+        self,
+        cat_embedding_dims,
+        num_features_dim,
+        num_feature_embed_len=64,
+        hidden_dims=512,
+    ):
+        super().__init__()
+        self.num_feature_embed_len = num_feature_embed_len
+        self.num_encoder = nn.Sequential(
+            nn.Linear(num_features_dim, 128),
+            ResidualBlock(128),
+            nn.Linear(128, 256),
+            ResidualBlock(256),
+            nn.Linear(256, hidden_dims),
+            ResidualBlock(hidden_dims),
+            nn.Linear(hidden_dims, hidden_dims // 2),
+            ResidualBlock(hidden_dims // 2),
+            nn.Linear(hidden_dims // 2, self.num_feature_embed_len),
+            nn.BatchNorm1d(self.num_feature_embed_len),
+            nn.Tanh(),
+        )
+
+        # Feature Cross Network for interaction learning
+        self.feature_cross = FeatureCrossNetwork(num_features_dim, num_layers=2)
+
+        # Embedding layers for categorical features
+        self.cat_embeddings = nn.ModuleList(
+            [
+                nn.Embedding(cat_size, emb_dim)
+                for cat_size, emb_dim in cat_embedding_dims
+            ]
+        )
+
+    def forward(self, num_features, cat_features):
+        num_embeds = self.num_encoder(num_features)
+        num_crossed = self.feature_cross(num_features)
+
+        cat_embeds = [emb(cat_features[i]) for i, emb in enumerate(self.cat_embeddings)]
+        cat_embeds = torch.cat(cat_embeds, dim=-1)  # (batch_size, total_cat_dim)
+
+        structured_feat = torch.cat([num_embeds, num_crossed, cat_embeds], dim=-1)
+
+        return structured_feat
 
 
 class DeepFM(nn.Module):

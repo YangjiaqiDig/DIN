@@ -1,10 +1,13 @@
 import os
 import torch
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import torch.nn as nn
 from transformers import AutoModel, AutoTokenizer
-from meta_model import MetadataCandidateTransformer, DeepFM, SimpleModel
+from meta_model import (
+    MetadataCandidateTransformer,
+    DeepFM,
+    SimpleModel,
+    SimpleModelUpgrade,
+)
 from text_model import TextEmbeddingModule, EnhancedMultiHeadDINAttention
 
 
@@ -44,10 +47,11 @@ class DINForDurationPrediction(nn.Module):
         super().__init__()
 
         self.max_seq_len = max_seq_len
-        self.num_feature_embed_len = 32
 
-        self.metaModel = SimpleModel(cat_embedding_dims, num_features_dim, self.num_feature_embed_len)
-        # self.metaModel = DeepFM(num_features_dim, cat_embedding_dims, embedding_dim=16, deep_layers=[128, 64])
+        self.num_feature_embed_len = 128
+        self.metaModel = SimpleModelUpgrade(
+            cat_embedding_dims, num_features_dim, self.num_feature_embed_len
+        )
 
         # Text embedding module (BERT-based)
         self.text_embedding = TextEmbeddingModule(
@@ -56,9 +60,11 @@ class DINForDurationPrediction(nn.Module):
 
         # Attention for past interactions
         self.attention = EnhancedMultiHeadDINAttention(text_embedding_dim)
-        meta_dim = self.num_feature_embed_len + sum(
-            [dim[1] for dim in cat_embedding_dims]
-        ) + 15
+        meta_dim = (
+            self.num_feature_embed_len
+            + sum([dim[1] for dim in cat_embedding_dims])
+            + 15
+        )
         self.metadata_candidate_attention = MetadataCandidateTransformer(
             cand_dim=text_embedding_dim, meta_dim=meta_dim
         )
@@ -110,7 +116,7 @@ class DINForDurationPrediction(nn.Module):
 
         # Encode latest text (Candidate)
         latest_text_embedding = self.text_embedding(candidate_embed)
-        
+
         # Encode past texts (User History)
         past_text_embeddings = self.text_embedding(
             past_text_embeds.view(batch_size * seq_len, text_len)
@@ -134,7 +140,6 @@ class DINForDurationPrediction(nn.Module):
         )
 
         metadata_embedding = self.metaModel(num_features, cat_features)
-        # metadata_embedding = torch.cat([num_embeds, cat_embeds], dim=-1)
         metadata_candidate_interaction = self.metadata_candidate_attention(
             metadata_embedding, latest_text_embedding
         )
