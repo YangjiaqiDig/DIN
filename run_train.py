@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 import torch
@@ -164,7 +165,9 @@ def combine_loss(y_pred, y_true):
 
 
 # Define the training loop
-def train_model(model, train_loader, val_loader, epochs, lr, device):
+def train_model(
+    model, train_loader, val_loader, epochs, lr, device, model_save_dir=None
+):
     model = model.to(device)
     optimizer = Adam(model.parameters(), lr=lr)
     loss_fn = combine_loss
@@ -237,6 +240,12 @@ def train_model(model, train_loader, val_loader, epochs, lr, device):
         avg_val_loss = val_loss / len(val_loader)
         print(f"Validation Loss: {avg_val_loss:.4f}")
         calc_metrics(np.array(preds), np.array(gt), verbose=True)
+        if (epoch + 1) % 5 == 0 and model_save_dir is not None:
+            print("Model saveing....")
+            torch.save(
+                model.state_dict(),  # module.
+                f"{model_save_dir}/finetuned_epoch{epoch+1}.pwf",
+            )
 
 
 # Example usage
@@ -307,5 +316,11 @@ if __name__ == "__main__":
 
     # Train the model
     train_model(
-        din_model, train_loader, val_loader, epochs=NUM_EPOCHS, lr=LR, device=DEVICE
+        din_model,
+        train_loader,
+        val_loader,
+        epochs=NUM_EPOCHS,
+        lr=LR,
+        device=DEVICE,
+        model_save_dir=intem_data_save_path + "/ckpt",
     )

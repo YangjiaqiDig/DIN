@@ -1,0 +1,314 @@
+/modeling/models/conda_envs/jy_ltd/lib/python3.9/site-packages/transformers/utils/hub.py:124: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+Using 1 GPUs!
+============ Loading the saved data ============
+================================================================================
+Epoch 1/50, Training Loss: 0.1625
+Validation Loss: 0.1174
+Average Approved Days: 44.76561222117487
+Overpaid Ratio: 0.12121212121212122
+Average Number of Days Overpaid for Overpaid Claims: 13.285060029706598
+================================================================================
+Epoch 2/50, Training Loss: 0.1234
+Validation Loss: 0.1092
+Average Approved Days: 40.97484356621145
+Overpaid Ratio: 0.0964096409640964
+Average Number of Days Overpaid for Overpaid Claims: 8.710464224902976
+================================================================================
+Epoch 3/50, Training Loss: 0.1169
+Validation Loss: 0.1006
+Average Approved Days: 47.4279222707274
+Overpaid Ratio: 0.13711371137113712
+Average Number of Days Overpaid for Overpaid Claims: 9.808468913125942
+================================================================================
+Epoch 4/50, Training Loss: 0.1125
+Validation Loss: 0.0990
+Average Approved Days: 51.37432374300035
+Overpaid Ratio: 0.1567156715671567
+Average Number of Days Overpaid for Overpaid Claims: 12.129117484537856
+================================================================================
+Epoch 5/50, Training Loss: 0.1101
+Validation Loss: 0.1002
+Average Approved Days: 44.559507252788556
+Overpaid Ratio: 0.08240824082408241
+Average Number of Days Overpaid for Overpaid Claims: 9.71613737366534
+Model saveing....
+================================================================================
+Epoch 6/50, Training Loss: 0.1075
+Validation Loss: 0.0942
+Average Approved Days: 47.36027015662005
+Overpaid Ratio: 0.10161016101610161
+Average Number of Days Overpaid for Overpaid Claims: 9.78730353976156
+================================================================================
+Epoch 7/50, Training Loss: 0.1050
+Validation Loss: 0.0972
+Average Approved Days: 47.8063894907935
+Overpaid Ratio: 0.0889088908890889
+Average Number of Days Overpaid for Overpaid Claims: 11.11741485276602
+================================================================================
+Epoch 8/50, Training Loss: 0.1031
+Validation Loss: 0.0913
+Average Approved Days: 46.26058373385997
+Overpaid Ratio: 0.0846084608460846
+Average Number of Days Overpaid for Overpaid Claims: 8.054896359837807
+================================================================================
+Epoch 9/50, Training Loss: 0.1002
+Validation Loss: 0.0927
+Average Approved Days: 46.498127013899584
+Overpaid Ratio: 0.07610761076107611
+Average Number of Days Overpaid for Overpaid Claims: 9.39752834747517
+================================================================================
+Epoch 10/50, Training Loss: 0.1013
+Validation Loss: 0.0883
+Average Approved Days: 52.55497666543316
+Overpaid Ratio: 0.1474147414741474
+Average Number of Days Overpaid for Overpaid Claims: 10.122174831712424
+Model saveing....
+================================================================================
+Epoch 11/50, Training Loss: 0.0982
+Validation Loss: 0.0853
+Average Approved Days: 50.41811567380373
+Overpaid Ratio: 0.10631063106310631
+Average Number of Days Overpaid for Overpaid Claims: 9.382850300441376
+================================================================================
+Epoch 12/50, Training Loss: 0.0969
+Validation Loss: 0.0886
+Average Approved Days: 50.11877780386362
+Overpaid Ratio: 0.12071207120712071
+Average Number of Days Overpaid for Overpaid Claims: 9.213816114723219
+================================================================================
+Epoch 13/50, Training Loss: 0.0963
+Validation Loss: 0.0874
+Average Approved Days: 53.07919822968428
+Overpaid Ratio: 0.17441744174417442
+Average Number of Days Overpaid for Overpaid Claims: 8.18186994502305
+================================================================================
+Epoch 14/50, Training Loss: 0.0962
+Validation Loss: 0.0839
+Average Approved Days: 52.229517987072185
+Overpaid Ratio: 0.1339133913391339
+Average Number of Days Overpaid for Overpaid Claims: 8.804581691781655
+================================================================================
+Epoch 15/50, Training Loss: 0.0946
+Validation Loss: 0.1015
+Average Approved Days: 42.20334161232477
+Overpaid Ratio: 0.0406040604060406
+Average Number of Days Overpaid for Overpaid Claims: 9.502932579295189
+Model saveing....
+================================================================================
+Epoch 16/50, Training Loss: 0.0938
+Validation Loss: 0.0892
+Average Approved Days: 46.46130685312045
+Overpaid Ratio: 0.0849084908490849
+Average Number of Days Overpaid for Overpaid Claims: 7.776855406671219
+================================================================================
+Epoch 17/50, Training Loss: 0.0927
+Validation Loss: 0.0950
+Average Approved Days: 43.50933600900105
+Overpaid Ratio: 0.05310531053105311
+Average Number of Days Overpaid for Overpaid Claims: 7.997622899369537
+================================================================================
+Epoch 18/50, Training Loss: 0.0918
+Validation Loss: 0.0846
+Average Approved Days: 49.94854697982538
+Overpaid Ratio: 0.08300830083008301
+Average Number of Days Overpaid for Overpaid Claims: 10.3890154130978
+================================================================================
+Epoch 19/50, Training Loss: 0.0887
+Validation Loss: 0.0835
+Average Approved Days: 50.78470217269816
+Overpaid Ratio: 0.1073107310731073
+Average Number of Days Overpaid for Overpaid Claims: 8.676362772153338
+================================================================================
+Epoch 20/50, Training Loss: 0.0870
+Validation Loss: 0.0848
+Average Approved Days: 51.743832654715334
+Overpaid Ratio: 0.111011101110111
+Average Number of Days Overpaid for Overpaid Claims: 10.516024500432735
+Model saveing....
+================================================================================
+Epoch 21/50, Training Loss: 0.0864
+Validation Loss: 0.0858
+Average Approved Days: 55.35482637315512
+Overpaid Ratio: 0.15931593159315932
+Average Number of Days Overpaid for Overpaid Claims: 10.768840334702732
+================================================================================
+Epoch 22/50, Training Loss: 0.0847
+Validation Loss: 0.0818
+Average Approved Days: 52.57473628959812
+Overpaid Ratio: 0.11411141114111412
+Average Number of Days Overpaid for Overpaid Claims: 9.624934219418039
+================================================================================
+Epoch 23/50, Training Loss: 0.0851
+Validation Loss: 0.0853
+Average Approved Days: 54.168865237711415
+Overpaid Ratio: 0.134013401340134
+Average Number of Days Overpaid for Overpaid Claims: 11.760159392418446
+================================================================================
+Epoch 24/50, Training Loss: 0.0840
+Validation Loss: 0.0875
+Average Approved Days: 55.38821259572661
+Overpaid Ratio: 0.18871887188718872
+Average Number of Days Overpaid for Overpaid Claims: 9.065718478302083
+================================================================================
+Epoch 25/50, Training Loss: 0.0841
+Validation Loss: 0.0860
+Average Approved Days: 53.864528111331225
+Overpaid Ratio: 0.13081308130813082
+Average Number of Days Overpaid for Overpaid Claims: 11.462590908524785
+Model saveing....
+================================================================================
+Epoch 26/50, Training Loss: 0.0820
+Validation Loss: 0.0803
+Average Approved Days: 53.951197593639286
+Overpaid Ratio: 0.1252125212521252
+Average Number of Days Overpaid for Overpaid Claims: 9.793816325973076
+================================================================================
+Epoch 27/50, Training Loss: 0.0804
+Validation Loss: 0.0840
+Average Approved Days: 51.1317789161611
+Overpaid Ratio: 0.0927092709270927
+Average Number of Days Overpaid for Overpaid Claims: 10.379343530285922
+================================================================================
+Epoch 28/50, Training Loss: 0.0801
+Validation Loss: 0.0904
+Average Approved Days: 46.135503566683944
+Overpaid Ratio: 0.0635063506350635
+Average Number of Days Overpaid for Overpaid Claims: 9.241926152425227
+================================================================================
+Epoch 29/50, Training Loss: 0.0790
+Validation Loss: 0.0841
+Average Approved Days: 51.17235905900435
+Overpaid Ratio: 0.093009300930093
+Average Number of Days Overpaid for Overpaid Claims: 10.765742181036018
+================================================================================
+Epoch 30/50, Training Loss: 0.0795
+Validation Loss: 0.0885
+Average Approved Days: 50.53870391230994
+Overpaid Ratio: 0.11671167116711671
+Average Number of Days Overpaid for Overpaid Claims: 10.056392821103268
+Model saveing....
+================================================================================
+Epoch 31/50, Training Loss: 0.0788
+Validation Loss: 0.0865
+Average Approved Days: 50.98002424851973
+Overpaid Ratio: 0.09860986098609861
+Average Number of Days Overpaid for Overpaid Claims: 10.712119568787298
+================================================================================
+Epoch 32/50, Training Loss: 0.0772
+Validation Loss: 0.0880
+Average Approved Days: 49.63483826357396
+Overpaid Ratio: 0.07550755075507551
+Average Number of Days Overpaid for Overpaid Claims: 11.781259668542747
+================================================================================
+Epoch 33/50, Training Loss: 0.0760
+Validation Loss: 0.0896
+Average Approved Days: 52.187939168445965
+Overpaid Ratio: 0.10951095109510951
+Average Number of Days Overpaid for Overpaid Claims: 13.000832060050103
+================================================================================
+Epoch 34/50, Training Loss: 0.0755
+Validation Loss: 0.0872
+Average Approved Days: 53.052292792534914
+Overpaid Ratio: 0.11191119111911191
+Average Number of Days Overpaid for Overpaid Claims: 12.482017227806983
+================================================================================
+Epoch 35/50, Training Loss: 0.0751
+Validation Loss: 0.0849
+Average Approved Days: 52.61828488145864
+Overpaid Ratio: 0.11421142114211422
+Average Number of Days Overpaid for Overpaid Claims: 10.797714472783861
+Model saveing....
+================================================================================
+Epoch 36/50, Training Loss: 0.0743
+Validation Loss: 0.0860
+Average Approved Days: 52.01804150274653
+Overpaid Ratio: 0.0962096209620962
+Average Number of Days Overpaid for Overpaid Claims: 11.863257163043412
+================================================================================
+Epoch 37/50, Training Loss: 0.0744
+Validation Loss: 0.0851
+Average Approved Days: 51.566066000678575
+Overpaid Ratio: 0.11281128112811281
+Average Number of Days Overpaid for Overpaid Claims: 9.692130148016641
+================================================================================
+Epoch 38/50, Training Loss: 0.0730
+Validation Loss: 0.0878
+Average Approved Days: 53.098892406799415
+Overpaid Ratio: 0.11721172117211721
+Average Number of Days Overpaid for Overpaid Claims: 12.28609329935281
+================================================================================
+Epoch 39/50, Training Loss: 0.0735
+Validation Loss: 0.0858
+Average Approved Days: 55.47088027655883
+Overpaid Ratio: 0.1495149514951495
+Average Number of Days Overpaid for Overpaid Claims: 11.380820816016586
+================================================================================
+Epoch 40/50, Training Loss: 0.0718
+Validation Loss: 0.0856
+Average Approved Days: 54.44563531399826
+Overpaid Ratio: 0.1269126912691269
+Average Number of Days Overpaid for Overpaid Claims: 12.150707308756884
+Model saveing....
+================================================================================
+Epoch 41/50, Training Loss: 0.0720
+Validation Loss: 0.0841
+Average Approved Days: 53.08242989012628
+Overpaid Ratio: 0.12051205120512051
+Average Number of Days Overpaid for Overpaid Claims: 10.304204781469245
+================================================================================
+Epoch 42/50, Training Loss: 0.0705
+Validation Loss: 0.0824
+Average Approved Days: 54.8047824277317
+Overpaid Ratio: 0.14431443144314432
+Average Number of Days Overpaid for Overpaid Claims: 10.043897217082733
+================================================================================
+Epoch 43/50, Training Loss: 0.0711
+Validation Loss: 0.0834
+Average Approved Days: 55.8593455748525
+Overpaid Ratio: 0.141014101410141
+Average Number of Days Overpaid for Overpaid Claims: 11.752379843194628
+================================================================================
+Epoch 44/50, Training Loss: 0.0705
+Validation Loss: 0.0851
+Average Approved Days: 56.44975637391922
+Overpaid Ratio: 0.1555155515551555
+Average Number of Days Overpaid for Overpaid Claims: 11.733792611923679
+================================================================================
+Epoch 45/50, Training Loss: 0.0711
+Validation Loss: 0.0883
+Average Approved Days: 50.46330323115109
+Overpaid Ratio: 0.10241024102410241
+Average Number of Days Overpaid for Overpaid Claims: 11.314523249104795
+Model saveing....
+================================================================================
+Epoch 46/50, Training Loss: 0.0707
+Validation Loss: 0.0860
+Average Approved Days: 55.33389744835222
+Overpaid Ratio: 0.1495149514951495
+Average Number of Days Overpaid for Overpaid Claims: 11.185044991121092
+================================================================================
+Epoch 47/50, Training Loss: 0.0692
+Validation Loss: 0.0856
+Average Approved Days: 54.59986548406045
+Overpaid Ratio: 0.1332133213321332
+Average Number of Days Overpaid for Overpaid Claims: 11.537767675180401
+================================================================================
+Epoch 48/50, Training Loss: 0.0674
+Validation Loss: 0.0874
+Average Approved Days: 52.70042170438629
+Overpaid Ratio: 0.1185118511851185
+Average Number of Days Overpaid for Overpaid Claims: 11.627158303183357
+================================================================================
+Epoch 49/50, Training Loss: 0.0676
+Validation Loss: 0.0851
+Average Approved Days: 53.77611125334897
+Overpaid Ratio: 0.12121212121212122
+Average Number of Days Overpaid for Overpaid Claims: 11.400229865013264
+================================================================================
+Epoch 50/50, Training Loss: 0.0681
+Validation Loss: 0.0871
+Average Approved Days: 52.68103395297453
+Overpaid Ratio: 0.11611161116111611
+Average Number of Days Overpaid for Overpaid Claims: 11.494448068532696
+Model saveing....
